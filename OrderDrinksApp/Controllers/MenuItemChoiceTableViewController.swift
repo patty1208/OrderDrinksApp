@@ -80,12 +80,6 @@ class MenuItemChoiceTableViewController: UITableViewController {
                    "配料":Toppings.allCases]
     }
     
-    @IBAction func editOrderName(_ sender: UITextField) {
-        guard let orderName = sender.text else { return }
-        self.orderName = orderName
-        orderChoiceDelegate?.orderName(orderName: orderName)
-    }
-    
     @IBAction func dismissKeyboard(_ sender: UITextField) {
     }
     // MARK: - Table view data source
@@ -103,9 +97,8 @@ class MenuItemChoiceTableViewController: UITableViewController {
         case .orderName:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(OrderNameTableViewCell.self)", for: indexPath) as? OrderNameTableViewCell else { return UITableViewCell() }
             cell.orderNameTextField.text = orderName
-            if self.orderRecord == nil {
-                cell.orderNameTextField.becomeFirstResponder()
-            }
+            cell.delegate = self
+            cell.orderNameTextField.becomeFirstResponder()
             return cell
         case .capacity:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(MenuChoiceTableViewCell.self)", for: indexPath) as? MenuChoiceTableViewCell else { return UITableViewCell() }
@@ -164,5 +157,13 @@ class MenuItemChoiceTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         categories[section].rawValue
+    }
+}
+
+extension MenuItemChoiceTableViewController: OrderNameTableViewCellTapDelegate {
+    func isEdit(cell: OrderNameTableViewCell) {
+        guard let orderName = cell.orderNameTextField.text else { return }
+        self.orderName = orderName
+        orderChoiceDelegate?.orderName(orderName: orderName)
     }
 }

@@ -6,10 +6,14 @@
 //
 
 import UIKit
+protocol OrderNameTableViewCellTapDelegate {
+    func isEdit(cell: OrderNameTableViewCell)
+}
 
 class OrderNameTableViewCell: UITableViewCell {
-
     @IBOutlet weak var orderNameTextField: UITextField!
+    var delegate: OrderNameTableViewCellTapDelegate?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -19,6 +23,10 @@ class OrderNameTableViewCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
+    }
+    
+    @IBAction func isEdit(_ sender: UITextField) {
+            delegate?.isEdit(cell: self)
     }
 
 }

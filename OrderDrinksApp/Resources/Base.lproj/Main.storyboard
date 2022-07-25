@@ -107,7 +107,7 @@
                                             <textInputTraits key="textInputTraits"/>
                                             <connections>
                                                 <action selector="dismissKeyboard:" destination="MeQ-XL-4lK" eventType="editingDidEndOnExit" id="uv6-uM-cas"/>
-                                                <action selector="editOrderName:" destination="MeQ-XL-4lK" eventType="editingDidEnd" id="xjU-td-CJN"/>
+                                                <action selector="isEdit:" destination="jjN-XA-Coe" eventType="editingChanged" id="kVG-qy-p1S"/>
                                             </connections>
                                         </textField>
                                     </subviews>
