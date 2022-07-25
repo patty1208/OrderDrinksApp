@@ -22,23 +22,23 @@ class MenuItemChoiceTableViewController: UITableViewController {
     var tempChoice: [TempLevel] = []
     var choices: [String:[Any]] = [String:[Any]]()
     let categories = OrderCategory.allCases
-    let menuItem: MenuRecord
+    let menuItem: MenuResponse.Record
     var orderName: String = ""
     var capacity: Capacity?
     var tempLevel: TempLevel?
     var sugarLevel: SugerLevel?
     var toppings: [Toppings] = []
-    var orderRecord: OrderRecord?
+    var orderRecord: OrderResponse.Record?
     
     var orderChoiceDelegate: OrderChoiceDelegate?
     
-    init?(coder: NSCoder, menuItem: MenuRecord){
+    init?(coder: NSCoder, menuItem: MenuResponse.Record){
         self.menuItem = menuItem
         self.capacity = menuItem.fields.mediumPrice == nil ? .large : menuItem.fields.largePrice == nil ? .medium : nil
         super.init(coder: coder)
     }
     
-    init?(coder: NSCoder, menuItem: MenuRecord, orderRecord: OrderRecord){
+    init?(coder: NSCoder, menuItem: MenuResponse.Record, orderRecord: OrderResponse.Record){
         self.menuItem = menuItem
         self.orderRecord = orderRecord
         self.orderName = orderRecord.fields.orderName

@@ -26,7 +26,7 @@ class MenuItemDetailViewController: UIViewController {
     
     @IBOutlet weak var addCartButton: UIButton!
     
-    var menuRecord: MenuRecord
+    var menuRecord: MenuResponse.Record
     var orderItem: Order?
     var orderName: String?
     var drinkName: String
@@ -36,18 +36,18 @@ class MenuItemDetailViewController: UIViewController {
     var toppings: [Toppings] = []
     var quantity: Int = 0
     var price: Int = 0
-    var orderRecord: OrderRecord?
+    var orderRecord: OrderResponse.Record?
     var delegate: MenuDelgate?
     var orderDelegate: OrderDelgate?
     
     
-    init?(coder: NSCoder, menuRecord: MenuRecord){
+    init?(coder: NSCoder, menuRecord: MenuResponse.Record){
         self.menuRecord = menuRecord
         self.drinkName = menuRecord.fields.drinkName
         self.capacity = menuRecord.fields.mediumPrice == nil ? .large : menuRecord.fields.largePrice == nil ? .medium : nil
         super.init(coder: coder)
     }
-    init?(coder: NSCoder, orderRecord: OrderRecord){
+    init?(coder: NSCoder, orderRecord: OrderResponse.Record){
         self.orderRecord = orderRecord
         self.menuRecord = MenuController.shared.menuResponse.records.first(where: {
             $0.fields.drinkName == orderRecord.fields.drinkName
@@ -205,7 +205,7 @@ class MenuItemDetailViewController: UIViewController {
                     }
                 }
             } else {
-                let orderRecord = OrderRecord(id: orderRecord?.id, fields: orderItem!, createdTime: nil)
+                let orderRecord = OrderResponse.Record(id: orderRecord?.id, fields: orderItem!, createdTime: nil)
                 let orderResponse = OrderResponse.init(records: [orderRecord])
                 MenuController.shared.updateOrder(orderData: orderResponse) { result in
                     switch result{

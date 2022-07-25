@@ -8,13 +8,13 @@
 import UIKit
 
 protocol loadOrderDelegate {
-    func loadOrder(orderRecords: [OrderRecord])
+    func loadOrder(orderRecords: [OrderResponse.Record])
     func loadAnimatiing(state: Bool)
 }
 
 class OrderTableViewController: UITableViewController {
     
-    var orderRecords = [OrderRecord](){
+    var orderRecords = [OrderResponse.Record](){
         didSet {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'.000Z'"
@@ -70,7 +70,7 @@ class OrderTableViewController: UITableViewController {
         }
     }
     
-    func updateUI(with orderRecords: [OrderRecord]) {
+    func updateUI(with orderRecords: [OrderResponse.Record]) {
         DispatchQueue.main.async {
             self.orderRecords = orderRecords
             self.tableView.reloadData()

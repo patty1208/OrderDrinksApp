@@ -8,20 +8,20 @@
 import Foundation
 
 struct MenuResponse: Codable {
-    var records: [MenuRecord]
-}
-
-struct MenuRecord: Codable {
-    let id: String
-    let fields: MenuItem
+    var records: [Record]
+    
+    struct Record: Codable {
+        let id: String
+        let fields: MenuItem
+    }
 }
 
 struct OrderResponse: Codable {
-    var records: [OrderRecord]
-}
-
-struct OrderRecord: Codable {
-    let id: String?
-    let fields: Order
-    let createdTime: String?
+    var records: [Record]
+    
+    struct Record: Codable {
+        let id: String?
+        let fields: Order
+        let createdTime: String?
+    }
 }

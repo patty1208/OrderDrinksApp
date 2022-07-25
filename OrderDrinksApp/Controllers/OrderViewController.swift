@@ -9,7 +9,7 @@ import UIKit
 
 class OrderViewController: UIViewController {
     
-    var orderRecords = [OrderRecord]()
+    var orderRecords = [OrderResponse.Record]()
     
     @IBOutlet weak var totalPriceLabel: UILabel!
     @IBOutlet weak var totalQuantityLabel: UILabel!
@@ -19,7 +19,7 @@ class OrderViewController: UIViewController {
         super.viewDidLoad()        
     }
     
-    func updateUI(with orderRecords: [OrderRecord]) {
+    func updateUI(with orderRecords: [OrderResponse.Record]) {
         self.totalPriceLabel.text = " $ \(orderRecords.reduce(0, {$0+$1.fields.price}).description)"
         self.totalQuantityLabel.text = "共 \(orderRecords.reduce(0, {$0+$1.fields.quantity})) 杯"
     }
@@ -50,7 +50,7 @@ extension OrderViewController: loadOrderDelegate {
         }
     }
     
-    func loadOrder(orderRecords: [OrderRecord]) {
+    func loadOrder(orderRecords: [OrderResponse.Record]) {
         self.orderRecords = orderRecords
         updateUI(with: orderRecords)
     }

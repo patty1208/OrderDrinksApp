@@ -9,10 +9,11 @@ import UIKit
 
 class MenuTableViewController: UITableViewController {
     
-    var menuRecords = [MenuRecord]()
-    var menuByCategory: [String: [MenuRecord]] = [:]
+    var menuRecords = [MenuResponse.Record]()
+    var menuByCategory: [String: [MenuResponse.Record]] = [:]
     var categories = [String]()
     
+    // MARK: - View controller life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         MenuController.shared.fetchMenuRecords{ (result) in
@@ -27,7 +28,7 @@ class MenuTableViewController: UITableViewController {
     }
 
     
-    func updateUI(with menuRecords: [MenuRecord]) {
+    func updateUI(with menuRecords: [MenuResponse.Record]) {
         DispatchQueue.main.async {
             self.menuRecords = menuRecords
             self.menuByCategory = Dictionary(grouping: self.menuRecords) { (record) -> String in
@@ -59,18 +60,11 @@ class MenuTableViewController: UITableViewController {
         let category = categories[indexPath.section]
         guard let menuRecordByCategory = menuByCategory[category] else { return UITableViewCell() }
         let menuRecord = menuRecordByCategory[indexPath.row]
+        let temp = menuRecord.fields.onlyHot == "true" ? "hot" : menuRecord.fields.onlyCold == "true" ? "cold" : "both"
         
         cell.aboutDrinkLabel.text = "\(menuRecord.fields.drinkName)"
         cell.recommendImageView.image = menuRecord.fields.isRecommend == "true" ? UIImage(systemName: "star.fill") : UIImage()
-        let temp = menuRecord.fields.onlyHot == "true" ? "hot" : menuRecord.fields.onlyCold == "true" ? "cold" : "both"
         cell.onlyColdOrHot.image = temp == "hot" ? UIImage(named: "hot tea") : temp == "cold" ? UIImage(named: "ice cube") : UIImage()
-        
-        cell.recommendImageView.tintColor = UIColor(red: 247/255, green: 205/255, blue: 70/255, alpha: 1)
-        
-        // 點選cell的背景顏色
-        let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor(red: 84/255, green: 24/255, blue: 38/255, alpha: 0.2)
-        cell.selectedBackgroundView = backgroundView
         
         return cell
     }
@@ -78,6 +72,8 @@ class MenuTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         return categories[section]
     }
+    
+    // MARK: - Table view delegate
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }

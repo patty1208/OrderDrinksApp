@@ -13,13 +13,13 @@ public let apiKey = "keyezMmClHKWxeYFA"
 class MenuController {
     
     static let shared = MenuController()
-    var menuResponse = MenuResponse.init(records: [MenuRecord]())
+    var menuResponse = MenuResponse.init(records: [MenuResponse.Record]())
     var categoryByMenu = ["冬季限定","原葉鮮萃茶", "鮮萃茶拿鐵", "鮮調果茶", "果然系列", "夏季限定", "奶茶 / 特調"]
-    var orderResponse = OrderResponse.init(records: [OrderRecord]())
+    var orderResponse = OrderResponse.init(records: [OrderResponse.Record]())
     let baseURL = URL(string: "https://api.airtable.com/v0/appjeZuwHlxzgniTq/")!
     
     // MARK: - GET MENU
-    func fetchMenuRecords(completion: @escaping (Result<[MenuRecord], Error>) -> Void) {
+    func fetchMenuRecords(completion: @escaping (Result<[MenuResponse.Record], Error>) -> Void) {
         let baseMenuURL = baseURL.appendingPathComponent("Menu")
         guard let components = URLComponents(url: baseMenuURL, resolvingAgainstBaseURL: true),
               let menuURL = components.url else { return }
@@ -53,7 +53,7 @@ class MenuController {
     }
     
     // MARK: - GET Order
-    func fetchOrderRecords(completion: @escaping (Result<[OrderRecord],Error>) -> Void) {
+    func fetchOrderRecords(completion: @escaping (Result<[OrderResponse.Record],Error>) -> Void) {
         let orderURL = baseURL.appendingPathComponent("Order")
         guard let components = URLComponents(url: orderURL, resolvingAgainstBaseURL: true),
               let orderURL = components.url else { return }
@@ -86,7 +86,7 @@ class MenuController {
     }
     
     // MARK: - POST Order
-    func postOrder(orderData: Order, completion: @escaping (Result<[OrderRecord],Error>) -> Void) {
+    func postOrder(orderData: Order, completion: @escaping (Result<[OrderResponse.Record],Error>) -> Void) {
         let orderURL = baseURL.appendingPathComponent("Order")
         guard let components = URLComponents(url: orderURL, resolvingAgainstBaseURL: true),
               let orderURL = components.url else { return }
@@ -97,7 +97,7 @@ class MenuController {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let jsonEncoder = JSONEncoder()
-        let orderRecord = OrderRecord(id: nil, fields: orderData, createdTime: nil)
+        let orderRecord = OrderResponse.Record(id: nil, fields: orderData, createdTime: nil)
         let orderResponse = OrderResponse(records: [orderRecord])
         let data = try? jsonEncoder.encode(orderResponse)
         request.httpBody = data
