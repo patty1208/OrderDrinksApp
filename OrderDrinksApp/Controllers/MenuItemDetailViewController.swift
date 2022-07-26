@@ -34,7 +34,7 @@ class MenuItemDetailViewController: UIViewController {
     var tempLevel: TempLevel?
     var sugarLevel: SugerLevel?
     var toppings: [Toppings] = []
-    var quantity: Int = 0
+    var quantity: Int = 1
     var price: Int = 0
     var orderRecord: OrderResponse.Record?
     var delegate: MenuDelgate?
@@ -97,9 +97,8 @@ class MenuItemDetailViewController: UIViewController {
     
     func updateUI(){
         addCartButton.setTitle(orderRecord?.id == nil ? " 加入購物車" : " 確定修改訂單", for: .normal)
-        
-        reduceQuantityButton.alpha = quantity == 0 ? 0.2 : 1
-        addQuantityButton.alpha = capacity == nil ? 0.2 : 1
+        reduceQuantityButton.isEnabled = quantity == 1 ? false : true
+        reduceQuantityButton.alpha = quantity == 1 ? 0.2 : 1
         
         drinkNameLabel.text = menuRecord.fields.drinkName
         quantityLabel.text = quantity.description
@@ -151,20 +150,17 @@ class MenuItemDetailViewController: UIViewController {
     
     @IBAction func addQuantity(_ sender: UIButton) {
         if capacity == nil{
-            showAlert(title: "Oops!", message: "請選擇容量！", exit: false)
+            showAlert(title: "Oops!", message: "請先選擇容量！", exit: false)
         } else {
             quantity += 1
             updateUI()
         }
     }
     @IBAction func reduceQuantity(_ sender: UIButton) {
-        if quantity == 0 {
-            showAlert(title: "Oops!", message: "目前 0 杯，不能再少了！", exit: false)
-        } else {
-            quantity -= 1
-            updateUI()
-        }
+        quantity -= 1
+        updateUI()
     }
+    
     @IBAction func addToCart(_ sender: UIButton) {
         if orderName == "" || orderName == nil {
             self.showAlert(title: "Oops!", message: "記得填上您的名字唷！", exit: false)
