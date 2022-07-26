@@ -7,13 +7,6 @@
 
 import UIKit
 
-protocol MenuDelgate {
-    func updateMenuListUIToNonSelected()
-}
-protocol OrderDelgate {
-    func updateOrderListUIToNonSelected()
-}
-
 class MenuItemDetailViewController: UIViewController {
     
     
@@ -36,10 +29,7 @@ class MenuItemDetailViewController: UIViewController {
     var toppings: [Toppings] = []
     var quantity: Int = 1
     var price: Int = 0
-    var orderRecord: OrderResponse.Record?
-    var delegate: MenuDelgate?
-    var orderDelegate: OrderDelgate?
-    
+    var orderRecord: OrderResponse.Record?    
     
     init?(coder: NSCoder, menuRecord: MenuResponse.Record){
         self.menuRecord = menuRecord
@@ -133,12 +123,6 @@ class MenuItemDetailViewController: UIViewController {
             }
         }))
         self.present(alert, animated: true, completion: nil)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        delegate?.updateMenuListUIToNonSelected()
-        orderDelegate?.updateOrderListUIToNonSelected()
-        
     }
     
     override func viewDidLoad() {

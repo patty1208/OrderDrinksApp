@@ -86,6 +86,10 @@ class MenuTableViewController: UITableViewController {
         return headerView
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+    }
+    
      // MARK: - Navigation
     @IBSegueAction func passMenu(_ coder: NSCoder) -> MenuItemDetailViewController? {
         guard let section = tableView.indexPathForSelectedRow?.section,
@@ -93,17 +97,6 @@ class MenuTableViewController: UITableViewController {
               let recordsByCategory = menuByCategory[categories[section]] else {
                   return MenuItemDetailViewController(coder: coder) }
         let controller = MenuItemDetailViewController(coder: coder, menuRecord: recordsByCategory[row])
-        controller?.delegate = self
         return controller
     }
-}
-
-extension MenuTableViewController: MenuDelgate {
-    
-    func updateMenuListUIToNonSelected() {
-        guard let selectedIndexPath = tableView.indexPathForSelectedRow else { return }
-        tableView.deselectRow(at: selectedIndexPath, animated: false)
-    }
-    
-    
 }
