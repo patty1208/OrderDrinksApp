@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="19162" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="3Ym-Pf-Q4b">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19144"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
@@ -249,7 +250,7 @@
                     <tabBarItem key="tabBarItem" title="cart" image="cart.fill" catalog="system" id="v6y-1D-f57"/>
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics" barStyle="black"/>
                     <connections>
-                        <outlet property="loading" destination="izX-oR-by1" id="9r4-R8-UVN"/>
+                        <outlet property="loadingActivityIndicatorView" destination="izX-oR-by1" id="nbg-fD-rDm"/>
                         <outlet property="totalPriceLabel" destination="RFT-FT-fNG" id="M90-d1-mbr"/>
                         <outlet property="totalQuantityLabel" destination="X8S-sQ-VlH" id="WZt-Rh-AhI"/>
                     </connections>
@@ -383,7 +384,7 @@
                                             <segue destination="MeQ-XL-4lK" kind="embed" destinationCreationSelector="passMenuItem:" id="d3Y-iF-TcG"/>
                                         </connections>
                                     </containerView>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l5S-yc-fIL">
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="l5S-yc-fIL" customClass="MenuItemDetailFooterView" customModule="OrderDrinksApp" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="655" width="414" height="187"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="5" translatesAutoresizingMaskIntoConstraints="NO" id="PQr-iB-TIE">
@@ -471,6 +472,14 @@
                                             <constraint firstItem="PQr-iB-TIE" firstAttribute="top" secondItem="l5S-yc-fIL" secondAttribute="top" constant="10" id="XOw-DW-pjM"/>
                                             <constraint firstAttribute="bottom" secondItem="PQr-iB-TIE" secondAttribute="bottom" constant="20" id="Z36-iQ-JoL"/>
                                         </constraints>
+                                        <connections>
+                                            <outlet property="addCartButton" destination="EEe-AO-MyC" id="1bl-Jg-xMu"/>
+                                            <outlet property="addQuantityButton" destination="jPL-o7-l2i" id="bU5-0L-0I5"/>
+                                            <outlet property="orderDetailLabel" destination="4Qh-QW-KPP" id="Sx9-dQ-wDr"/>
+                                            <outlet property="priceLabel" destination="Jvy-Ro-Myp" id="xUR-uS-HrZ"/>
+                                            <outlet property="quantityLabel" destination="2g7-15-yaw" id="srX-ol-cgF"/>
+                                            <outlet property="reduceQuantityButton" destination="itk-kB-1RB" id="N39-YA-Dux"/>
+                                        </connections>
                                     </view>
                                 </subviews>
                                 <constraints>
@@ -492,13 +501,8 @@
                     <navigationItem key="navigationItem" id="nBo-e5-GhK"/>
                     <modalPageSheetSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
                     <connections>
-                        <outlet property="addCartButton" destination="EEe-AO-MyC" id="TnK-CS-Ize"/>
-                        <outlet property="addQuantityButton" destination="jPL-o7-l2i" id="ixi-qj-2k7"/>
                         <outlet property="drinkNameLabel" destination="8ql-BH-y6L" id="Bv8-Qh-Tys"/>
-                        <outlet property="orderDetailLabel" destination="4Qh-QW-KPP" id="U87-rA-smy"/>
-                        <outlet property="priceLabel" destination="Jvy-Ro-Myp" id="vwL-zw-6aF"/>
-                        <outlet property="quantityLabel" destination="2g7-15-yaw" id="L6S-5M-Rj1"/>
-                        <outlet property="reduceQuantityButton" destination="itk-kB-1RB" id="kQl-M4-hvz"/>
+                        <outlet property="footerView" destination="l5S-yc-fIL" id="el6-hX-r7Y"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U1i-um-i9f" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -526,7 +530,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Lbt-La-3ew"/>
+        <segue reference="2Nn-GM-E8Y"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="cart.fill" catalog="system" width="128" height="102"/>

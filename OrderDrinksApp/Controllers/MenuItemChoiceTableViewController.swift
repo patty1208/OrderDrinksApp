@@ -30,7 +30,7 @@ class MenuItemChoiceTableViewController: UITableViewController {
         self.orderItem.tempLevel = menuRecord.fields.onlyHot == nil ? nil : .hot
         super.init(coder: coder)
     }
-    
+
     init?(coder: NSCoder, menuRecord: MenuResponse.Record, orderRecord: OrderResponse.Record){
         self.menuRecord = menuRecord
         self.orderRecord = orderRecord
@@ -42,7 +42,7 @@ class MenuItemChoiceTableViewController: UITableViewController {
         }
         super.init(coder: coder)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

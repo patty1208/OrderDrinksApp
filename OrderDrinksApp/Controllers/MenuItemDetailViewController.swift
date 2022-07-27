@@ -11,13 +11,7 @@ class MenuItemDetailViewController: UIViewController {
     
     
     @IBOutlet weak var drinkNameLabel: UILabel!
-    @IBOutlet weak var priceLabel: UILabel!
-    @IBOutlet weak var quantityLabel: UILabel!
-    @IBOutlet weak var orderDetailLabel: UILabel!
-    @IBOutlet weak var addQuantityButton: UIButton!
-    @IBOutlet weak var reduceQuantityButton: UIButton!
-    
-    @IBOutlet weak var addCartButton: UIButton!
+    @IBOutlet weak var footerView: MenuItemDetailFooterView!
     
     var menuRecord: MenuResponse.Record
     var orderRecord: OrderResponse.Record?
@@ -40,39 +34,39 @@ class MenuItemDetailViewController: UIViewController {
     }
     
     // MARK: - UI
-    func updateButtonUIToAdaptForOtherVersions(){
-        if #available(iOS 15, *) {
-            addQuantityButton.setImage(UIImage(), for: .normal)
-            addQuantityButton.configuration = .plain()
-            addQuantityButton.configuration?.background.image = UIImage(named: "plus")
-            addQuantityButton.configuration?.background.imageContentMode = .scaleAspectFit
-            reduceQuantityButton.setImage(UIImage(), for: .normal)
-            reduceQuantityButton.configuration = .plain()
-            reduceQuantityButton.configuration?.background.image = UIImage(named: "minus")
-            reduceQuantityButton.configuration?.background.imageContentMode = .scaleAspectFit
-        } else {
-            addQuantityButton.setTitle("", for: .normal)
-            addQuantityButton.setImage(UIImage(named: "plus"), for: .normal)
-            addQuantityButton.imageView?.contentMode = .scaleAspectFit
-            
-            reduceQuantityButton.setTitle("", for: .normal)
-            reduceQuantityButton.setImage(UIImage(named: "minus"), for: .normal)
-            reduceQuantityButton.imageView?.contentMode = .scaleAspectFit
-            
-            addCartButton.layer.cornerRadius = 10
-            addCartButton.layer.backgroundColor = UIColor.white.cgColor
-        }
-    }
+//    func updateButtonUIToAdaptForOtherVersions(){
+//        if #available(iOS 15, *) {
+//            addQuantityButton.setImage(UIImage(), for: .normal)
+//            addQuantityButton.configuration = .plain()
+//            addQuantityButton.configuration?.background.image = UIImage(named: "plus")
+//            addQuantityButton.configuration?.background.imageContentMode = .scaleAspectFit
+//            reduceQuantityButton.setImage(UIImage(), for: .normal)
+//            reduceQuantityButton.configuration = .plain()
+//            reduceQuantityButton.configuration?.background.image = UIImage(named: "minus")
+//            reduceQuantityButton.configuration?.background.imageContentMode = .scaleAspectFit
+//        } else {
+//            addQuantityButton.setTitle("", for: .normal)
+//            addQuantityButton.setImage(UIImage(named: "plus"), for: .normal)
+//            addQuantityButton.imageView?.contentMode = .scaleAspectFit
+//
+//            reduceQuantityButton.setTitle("", for: .normal)
+//            reduceQuantityButton.setImage(UIImage(named: "minus"), for: .normal)
+//            reduceQuantityButton.imageView?.contentMode = .scaleAspectFit
+//
+//            addCartButton.layer.cornerRadius = 10
+//            addCartButton.layer.backgroundColor = UIColor.white.cgColor
+//        }
+//    }
     
     func updateUI(){
         // 初始畫面
-        addCartButton.setTitle(orderRecord?.id == nil ? " 加入購物車" : " 確定修改訂單", for: .normal)
+        footerView.addCartButton.setTitle(orderRecord?.id == nil ? " 加入購物車" : " 確定修改訂單", for: .normal)
         drinkNameLabel.text = menuRecord.fields.drinkName
         
         // 隨數量變動
-        reduceQuantityButton.isEnabled = orderItem.quantity == 1 ? false : true
-        reduceQuantityButton.alpha = orderItem.quantity == 1 ? 0.2 : 1
-        quantityLabel.text = orderItem.quantity.description
+        footerView.reduceQuantityButton.isEnabled = orderItem.quantity == 1 ? false : true
+        footerView.reduceQuantityButton.alpha = orderItem.quantity == 1 ? 0.2 : 1
+        footerView.quantityLabel.text = orderItem.quantity.description
         
         // 訂單客製化選項說明:大杯小杯溫度甜度配料
         // 隨訂單選項點選變動
@@ -86,14 +80,14 @@ class MenuItemDetailViewController: UIViewController {
             }
             toppingsText = "\n" + toppingsText
         }
-        orderDetailLabel.text = "\(orderItem.capacity?.rawValue ?? "")  \(orderItem.sugarLevel?.rawValue ?? "")  \(orderItem.tempLevel?.rawValue ?? "")\(toppingsText)"
+        footerView.orderDetailLabel.text = "\(orderItem.capacity?.rawValue ?? "")  \(orderItem.sugarLevel?.rawValue ?? "")  \(orderItem.tempLevel?.rawValue ?? "")\(toppingsText)"
         
         // 價錢
         if let capacity = orderItem.capacity {
             orderItem.price = ((capacity == .large ? menuRecord.fields.largePrice! : menuRecord.fields.mediumPrice!) + orderItem.toppings.reduce(0, { x, y in
                 x + y.price })) * orderItem.quantity
         }
-        priceLabel.text = "$ " + orderItem.price.description
+        footerView.priceLabel.text = "$ " + orderItem.price.description
         
     }
     
@@ -110,7 +104,6 @@ class MenuItemDetailViewController: UIViewController {
     // MARK: - View controller life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        updateButtonUIToAdaptForOtherVersions()
         updateUI()
     }
     
@@ -142,8 +135,8 @@ class MenuItemDetailViewController: UIViewController {
         } else {
             // 按鈕動畫
             UIViewPropertyAnimator.runningPropertyAnimator(withDuration: 0.2, delay: 0, options: .curveEaseOut, animations: {
-                self.addCartButton.transform = CGAffineTransform(scaleX: 2.0, y: 2.0)
-                self.addCartButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+                self.footerView.addCartButton.transform = CGAffineTransform(scaleX: 2.0, y: 2.0)
+                self.footerView.addCartButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             }, completion: nil)
             
             guard let capacity = orderItem.capacity,

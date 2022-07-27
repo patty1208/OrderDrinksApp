@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C90A9CE928901C3300C3F976 /* OrderItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90A9CE828901C3300C3F976 /* OrderItem.swift */; };
+		C90A9CEB28915E5100C3F976 /* MenuItemDetailFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C90A9CEA28915E5100C3F976 /* MenuItemDetailFooterView.swift */; };
 		C91ABACB274B82F800634A9E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91ABACA274B82F800634A9E /* AppDelegate.swift */; };
 		C91ABACD274B82F800634A9E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C91ABACC274B82F800634A9E /* SceneDelegate.swift */; };
 		C91ABAD2274B82F800634A9E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C91ABAD0274B82F800634A9E /* Main.storyboard */; };
@@ -30,6 +32,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C90A9CE828901C3300C3F976 /* OrderItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrderItem.swift; sourceTree = "<group>"; };
+		C90A9CEA28915E5100C3F976 /* MenuItemDetailFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MenuItemDetailFooterView.swift; path = OrderDrinksApp/Controllers/MenuItemDetailFooterView.swift; sourceTree = SOURCE_ROOT; };
 		C91ABAC7274B82F800634A9E /* OrderDrinksApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OrderDrinksApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C91ABACA274B82F800634A9E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C91ABACC274B82F800634A9E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -102,6 +106,7 @@
 				C97082C9275376C100A1831E /* ResponseModels.swift */,
 				C91ABAEA274C9A4200634A9E /* MenuItem.swift */,
 				C91ABAE8274C996700634A9E /* Order.swift */,
+				C90A9CE828901C3300C3F976 /* OrderItem.swift */,
 				C97082BF274E459200A1831E /* Enums.swift */,
 			);
 			path = Model;
@@ -121,6 +126,7 @@
 		C9255F3B275913390038786C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				C90A9CEA28915E5100C3F976 /* MenuItemDetailFooterView.swift */,
 				C9255F3A2759131E0038786C /* Cells */,
 			);
 			path = View;
@@ -234,11 +240,13 @@
 				C97082C0274E459200A1831E /* Enums.swift in Sources */,
 				C97082C8274F5D4700A1831E /* OrderTableViewCell.swift in Sources */,
 				C91ABAE7274B85F800634A9E /* MenuTableViewCell.swift in Sources */,
+				C90A9CEB28915E5100C3F976 /* MenuItemDetailFooterView.swift in Sources */,
 				C97082CA275376C200A1831E /* ResponseModels.swift in Sources */,
 				C91ABAE5274B85A600634A9E /* MenuTableViewController.swift in Sources */,
 				C91ABACB274B82F800634A9E /* AppDelegate.swift in Sources */,
 				C91ABAEB274C9A4200634A9E /* MenuItem.swift in Sources */,
 				C97082C2274E4C0400A1831E /* OrderNameTableViewCell.swift in Sources */,
+				C90A9CE928901C3300C3F976 /* OrderItem.swift in Sources */,
 				C9A8BCC6274E234500F08FFE /* MenuItemChoiceTableViewController.swift in Sources */,
 				C91ABACD274B82F800634A9E /* SceneDelegate.swift in Sources */,
 				C9A8BCC4274E1F4F00F08FFE /* MenuItemDetailViewController.swift in Sources */,
@@ -411,7 +419,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -440,7 +448,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

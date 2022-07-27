@@ -77,7 +77,7 @@ class OrderTableViewController: UITableViewController {
                 self.displayError(error, title: "Failed to Fetch Order")
             }
         }
-        
+        // 當新增修改訂單後，訂單頁面可以即時重新載入訂單資料
         NotificationCenter.default.addObserver(self, selector: #selector(updateOrderRecordsUI), name: Notification.Name(rawValue: "UpdateOrderRecordsUI"), object: nil)
     }
     
@@ -85,38 +85,33 @@ class OrderTableViewController: UITableViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return orderRecords.count
     }
-    
-    
+
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(OrderTableViewCell.self)", for: indexPath) as? OrderTableViewCell else { return UITableViewCell()}
-        let orderRecord = orderRecords[indexPath.row].fields
-        let toppingsDescription = orderRecord.toppings ?? ""
-        cell.OrderNameLabel.text = orderRecord.orderName
-        cell.DrinkNameLabel.text = orderRecord.drinkName
-        cell.OrderDetailLabel.text = "\(orderRecord.capacity) \(orderRecord.tempLevel) \(orderRecord.sugarLevel)\(toppingsDescription != "" ? "\n" + toppingsDescription : "")"
-        cell.quantityLabel.text = orderRecord.quantity.description + " 杯"
-        cell.priceLabel.text = "$ " +  orderRecord.price.description
-        
-        let backgroundView = UIView()
-        backgroundView.backgroundColor = UIColor(red: 84/255, green: 24/255, blue: 38/255, alpha: 0.2)
-        cell.selectedBackgroundView = backgroundView
-        
+        let order = orderRecords[indexPath.row].fields
+        let toppingsDescription = order.toppings ?? ""
+        cell.OrderNameLabel.text = order.orderName
+        cell.DrinkNameLabel.text = order.drinkName
+        cell.OrderDetailLabel.text = "\(order.capacity) \(order.tempLevel) \(order.sugarLevel)\(toppingsDescription != "" ? "\n" + toppingsDescription : "")"
+        cell.quantityLabel.text = order.quantity.description + " 杯"
+        cell.priceLabel.text = "$ " +  order.price.description
         return cell
     }
+    
     // MARK: - Table view delegate
     // 滑動取消或選擇按鈕後
-    override func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
-        delegate?.loadOrder(orderRecords: orderRecords)
-    }
+//    override func tableView(_ tableView: UITableView, didEndEditingRowAt indexPath: IndexPath?) {
+//        delegate?.loadOrder(orderRecords: orderRecords)
+//    }
     
     // 左滑
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let orderRecord = orderRecords[indexPath.row]
-        let del = UIContextualAction(style: .destructive, title: "刪除") { (action, view, completionHandler) in
+        let deleteAction = UIContextualAction(style: .destructive, title: "刪除") { (action, view, completionHandler) in
             // 按鈕要做的事
             // 刪除資料
             let alertController = UIAlertController(title: "\(orderRecord.fields.orderName)  的   \(orderRecord.fields.drinkName)", message: "確定刪除此筆訂單嗎？", preferredStyle: .alert)
@@ -146,10 +141,10 @@ class OrderTableViewController: UITableViewController {
             completionHandler(true)
         }
         
-        del.backgroundColor = UIColor(red: 82/255, green: 24/255, blue: 38/255, alpha: 0.5)
+        deleteAction.backgroundColor = UIColor(red: 82/255, green: 24/255, blue: 38/255, alpha: 0.5)
         
         // 左滑選項
-        let config = UISwipeActionsConfiguration(actions: [del])
+        let config = UISwipeActionsConfiguration(actions: [deleteAction])
         config.performsFirstActionWithFullSwipe = false
         return config
         
