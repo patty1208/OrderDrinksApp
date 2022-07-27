@@ -12,10 +12,42 @@ class MenuTableViewController: UITableViewController {
     var menuRecords = [MenuResponse.Record]()
     var menuByCategory: [String: [MenuResponse.Record]] = [:]
     var categories = [String]()
+    var loadingActivityIndicatorView = UIActivityIndicatorView()
+    
+    // MARK: - update UI
+    func updateUI(with menuRecords: [MenuResponse.Record]) {
+        DispatchQueue.main.async {
+            self.loadingActivityIndicatorView.stopAnimating()
+            self.menuRecords = menuRecords
+            self.menuByCategory = Dictionary(grouping: self.menuRecords) { (record) -> String in
+                return record.fields.category }
+            self.categories = MenuController.shared.categoryByMenu
+            self.tableView.reloadData()
+        }
+    }
+    // MARK: - error
+    func displayError(_ error: Error, title: String) {
+        DispatchQueue.main.async {
+            let alert = UIAlertController(title: title, message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
     
     // MARK: - View controller life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+        // 旋轉指示器
+        loadingActivityIndicatorView.style = .large
+        loadingActivityIndicatorView.hidesWhenStopped = true
+        loadingActivityIndicatorView.color = UIColor.white
+        tableView.addSubview(loadingActivityIndicatorView)
+        // 定義約束條件
+        loadingActivityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([ loadingActivityIndicatorView.centerYAnchor.constraint(equalTo: tableView.safeAreaLayoutGuide.centerYAnchor), loadingActivityIndicatorView.centerXAnchor.constraint(equalTo: tableView.safeAreaLayoutGuide.centerXAnchor)])
+        // 啟用指示器
+        loadingActivityIndicatorView.startAnimating()
+        
         MenuController.shared.fetchMenuRecords{ (result) in
             switch result {
             case .success(let menuRecords):
@@ -27,25 +59,6 @@ class MenuTableViewController: UITableViewController {
         }
     }
 
-    
-    func updateUI(with menuRecords: [MenuResponse.Record]) {
-        DispatchQueue.main.async {
-            self.menuRecords = menuRecords
-            self.menuByCategory = Dictionary(grouping: self.menuRecords) { (record) -> String in
-                return record.fields.category }
-            self.categories = MenuController.shared.categoryByMenu
-            self.tableView.reloadData()
-        }
-    }
-    
-    func displayError(_ error: Error, title: String) {
-        DispatchQueue.main.async {
-            let alert = UIAlertController(title: title, message: error.localizedDescription, preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
-            self.present(alert, animated: true, completion: nil)
-        }
-    }
-    
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return categories.count
@@ -56,7 +69,6 @@ class MenuTableViewController: UITableViewController {
     }
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "menuRecord", for: indexPath) as? MenuTableViewCell else { return UITableViewCell() }
-        
         let category = categories[indexPath.section]
         guard let menuRecordByCategory = menuByCategory[category] else { return UITableViewCell() }
         let menuRecord = menuRecordByCategory[indexPath.row]
@@ -77,6 +89,7 @@ class MenuTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }
+    
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.bounds.size.width, height: 30))
         let titleLabel = UILabel.init(frame: CGRect.init(x: 10, y: 0, width: tableView.bounds.size.width - 20, height: 30))
@@ -90,7 +103,7 @@ class MenuTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: false)
     }
     
-     // MARK: - Navigation
+    // MARK: - Navigation
     @IBSegueAction func passMenu(_ coder: NSCoder) -> MenuItemDetailViewController? {
         guard let section = tableView.indexPathForSelectedRow?.section,
               let row = tableView.indexPathForSelectedRow?.row,

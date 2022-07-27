@@ -9,7 +9,7 @@ import UIKit
 
 protocol loadOrderDelegate {
     func loadOrder(orderRecords: [OrderResponse.Record])
-    func loadAnimatiing(state: Bool)
+    func loadAnimating(state: Bool)
 }
 
 class OrderTableViewController: UITableViewController {
@@ -20,12 +20,12 @@ class OrderTableViewController: UITableViewController {
             dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'.000Z'"
             orderRecords = orderRecords.sorted(by: {
                 dateFormatter.date(from:$0.createdTime!)!.compare(dateFormatter.date(from:$1.createdTime!)!) == .orderedDescending
-
             })
         }
     }
     var delegate: loadOrderDelegate?
-        
+    
+    // MARK: - UI
     @objc func updateOrderRecordsUI(notification: Notification) {
         MenuController.shared.fetchOrderRecords { (result) in
             switch result {
@@ -34,7 +34,6 @@ class OrderTableViewController: UITableViewController {
             case .failure(let error):
                 self.displayError(error, title: "Failed to Fetch Order")
             }
-            
         }
     }
     
@@ -46,20 +45,6 @@ class OrderTableViewController: UITableViewController {
             }
         }))
         self.present(alert, animated: true, completion: nil)
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        MenuController.shared.fetchOrderRecords { (result) in
-            switch result {
-            case .success(let orderRecords):
-                self.updateUI(with: orderRecords)
-            case .failure(let error):
-                self.displayError(error, title: "Failed to Fetch Order")
-            }
-            
-        }
-        NotificationCenter.default.addObserver(self, selector: #selector(updateOrderRecordsUI), name: Notification.Name(rawValue: "UpdateOrderRecordsUI"), object: nil)
     }
     
     func displayError(_ error: Error, title: String) {
@@ -75,17 +60,29 @@ class OrderTableViewController: UITableViewController {
             self.orderRecords = orderRecords
             self.tableView.reloadData()
             self.delegate?.loadOrder(orderRecords: self.orderRecords)
+            self.delegate?.loadAnimating(state: false)
         }
         
     }
     
-    
-    
+    // MARK: - View controller life cycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.delegate?.loadAnimating(state: true)
+        MenuController.shared.fetchOrderRecords { (result) in
+            switch result {
+            case .success(let orderRecords):
+                self.updateUI(with: orderRecords)
+            case .failure(let error):
+                self.displayError(error, title: "Failed to Fetch Order")
+            }
+        }
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(updateOrderRecordsUI), name: Notification.Name(rawValue: "UpdateOrderRecordsUI"), object: nil)
+    }
     
     // MARK: - Table view data source
-    
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
     
@@ -124,7 +121,7 @@ class OrderTableViewController: UITableViewController {
             // 刪除資料
             let alertController = UIAlertController(title: "\(orderRecord.fields.orderName)  的   \(orderRecord.fields.drinkName)", message: "確定刪除此筆訂單嗎？", preferredStyle: .alert)
             let okAction = UIAlertAction(title: "OK", style: .default) { (_) in
-                self.delegate?.loadAnimatiing(state: true)
+                self.delegate?.loadAnimating(state: true)
                 MenuController.shared.deleteOrder(orderID: self.orderRecords[indexPath.row].id!) { result in
                     switch result {
                     case .success(_):
@@ -132,7 +129,7 @@ class OrderTableViewController: UITableViewController {
                         DispatchQueue.main.async {
                             tableView.deleteRows(at: [indexPath], with: .fade)
                             self.delegate?.loadOrder(orderRecords: self.orderRecords)
-                            self.delegate?.loadAnimatiing(state: false)
+                            self.delegate?.loadAnimating(state: false)
                         }
                     case .failure(let error ):
                         print("DeleteOrder failed:\(error)")
@@ -164,7 +161,6 @@ class OrderTableViewController: UITableViewController {
     
      // MARK: - Navigation
     @IBSegueAction func passOrderRecord(_ coder: NSCoder) -> MenuItemDetailViewController? {
-        
         guard let selectedRow = tableView.indexPathForSelectedRow?.row else { return MenuItemDetailViewController(coder: coder) }
         let orderRecord = orderRecords[selectedRow]
         let controller = MenuItemDetailViewController(coder: coder, orderRecord: orderRecord)

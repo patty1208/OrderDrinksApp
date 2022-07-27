@@ -13,40 +13,33 @@ class OrderViewController: UIViewController {
     
     @IBOutlet weak var totalPriceLabel: UILabel!
     @IBOutlet weak var totalQuantityLabel: UILabel!
-    @IBOutlet weak var loading: UIActivityIndicatorView!
+    @IBOutlet weak var loadingActivityIndicatorView: UIActivityIndicatorView!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()        
-    }
-    
+    // MARK: - UI
     func updateUI(with orderRecords: [OrderResponse.Record]) {
         self.totalPriceLabel.text = " $ \(orderRecords.reduce(0, {$0+$1.fields.price}).description)"
         self.totalQuantityLabel.text = "共 \(orderRecords.reduce(0, {$0+$1.fields.quantity})) 杯"
     }
     
-    /*
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
+    // MARK: - View controller life cycle
+    override func viewDidLoad() {
+        super.viewDidLoad()        
+    }
+
+    // MARK: - Navigation
     @IBSegueAction func passOrderRecords(_ coder: NSCoder) -> OrderTableViewController? {
         let controller = OrderTableViewController(coder: coder)
         controller?.delegate = self
         return controller
     }
-    
 }
 
 extension OrderViewController: loadOrderDelegate {
-    func loadAnimatiing(state: Bool) {
+    func loadAnimating(state: Bool) {
         if state == true{
-            loading.startAnimating()
+            loadingActivityIndicatorView.startAnimating()
         } else {
-            loading.stopAnimating()
+            loadingActivityIndicatorView.stopAnimating()
         }
     }
     
