@@ -20,21 +20,11 @@ class MenuItemDetailViewController: UIViewController {
     @IBOutlet weak var addCartButton: UIButton!
     
     var menuRecord: MenuResponse.Record
-    var orderItem: Order?
-    var orderName: String?
-    var drinkName: String
-    var capacity: Capacity?
-    var tempLevel: TempLevel?
-    var sugarLevel: SugerLevel?
-    var toppings: [Toppings] = []
-    var quantity: Int = 1
-    var price: Int = 0
-    var orderRecord: OrderResponse.Record?    
+    var orderRecord: OrderResponse.Record?
+    var orderItem = OrderItem(orderName: "", drinkName: "", toppings: [], quantity: 1, price: 0)
     
     init?(coder: NSCoder, menuRecord: MenuResponse.Record){
         self.menuRecord = menuRecord
-        self.drinkName = menuRecord.fields.drinkName
-        self.capacity = menuRecord.fields.mediumPrice == nil ? .large : menuRecord.fields.largePrice == nil ? .medium : nil
         super.init(coder: coder)
     }
     init?(coder: NSCoder, orderRecord: OrderResponse.Record){
@@ -42,24 +32,14 @@ class MenuItemDetailViewController: UIViewController {
         self.menuRecord = MenuController.shared.menuResponse.records.first(where: {
             $0.fields.drinkName == orderRecord.fields.drinkName
         })!
-        self.drinkName = self.menuRecord.fields.drinkName
-        self.orderName = orderRecord.fields.orderName
-        self.capacity = Capacity(rawValue: orderRecord.fields.capacity)
-        self.sugarLevel = SugerLevel(rawValue: orderRecord.fields.sugarLevel)
-        self.tempLevel = TempLevel(rawValue: orderRecord.fields.tempLevel)
-        if let toppings = orderRecord.fields.toppings?.components(separatedBy: " "){
-            self.toppings = toppings.map({ Toppings(rawValue: $0)!})
-        } else {
-            self.toppings = [Toppings]()
-        }
-        self.quantity = orderRecord.fields.quantity
-        self.price = orderRecord.fields.price
         super.init(coder: coder)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    // MARK: - UI
     func updateButtonUIToAdaptForOtherVersions(){
         if #available(iOS 15, *) {
             addQuantityButton.setImage(UIImage(), for: .normal)
@@ -84,34 +64,36 @@ class MenuItemDetailViewController: UIViewController {
         }
     }
     
-    
     func updateUI(){
+        // 初始畫面
         addCartButton.setTitle(orderRecord?.id == nil ? " 加入購物車" : " 確定修改訂單", for: .normal)
-        reduceQuantityButton.isEnabled = quantity == 1 ? false : true
-        reduceQuantityButton.alpha = quantity == 1 ? 0.2 : 1
-        
         drinkNameLabel.text = menuRecord.fields.drinkName
-        quantityLabel.text = quantity.description
+        
+        // 隨數量變動
+        reduceQuantityButton.isEnabled = orderItem.quantity == 1 ? false : true
+        reduceQuantityButton.alpha = orderItem.quantity == 1 ? 0.2 : 1
+        quantityLabel.text = orderItem.quantity.description
         
         // 訂單客製化選項說明:大杯小杯溫度甜度配料
+        // 隨訂單選項點選變動
         var toppingsText = ""
-        if toppings == []{
+    
+        if orderItem.toppings == [] {
             toppingsText = ""
         } else {
-            toppings.forEach { topping in
+            orderItem.toppings.forEach { topping in
                 toppingsText = toppingsText + topping.rawValue + " "
             }
-            toppingsText = "\n"+toppingsText
+            toppingsText = "\n" + toppingsText
         }
-        orderDetailLabel.text = "\(capacity?.rawValue ?? "")  \(sugarLevel?.rawValue ?? "")  \(tempLevel?.rawValue ?? "")\(toppingsText)"
+        orderDetailLabel.text = "\(orderItem.capacity?.rawValue ?? "")  \(orderItem.sugarLevel?.rawValue ?? "")  \(orderItem.tempLevel?.rawValue ?? "")\(toppingsText)"
         
         // 價錢
-        if let capacity = capacity {
-            price = ((capacity == .large ? menuRecord.fields.largePrice! : menuRecord.fields.mediumPrice!) + toppings.reduce(0, { x, y in
-                x + y.price })) * quantity
+        if let capacity = orderItem.capacity {
+            orderItem.price = ((capacity == .large ? menuRecord.fields.largePrice! : menuRecord.fields.mediumPrice!) + orderItem.toppings.reduce(0, { x, y in
+                x + y.price })) * orderItem.quantity
         }
-        
-        priceLabel.text = "$ " + price.description
+        priceLabel.text = "$ " + orderItem.price.description
         
     }
     
@@ -125,6 +107,7 @@ class MenuItemDetailViewController: UIViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    // MARK: - View controller life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         updateButtonUIToAdaptForOtherVersions()
@@ -133,28 +116,28 @@ class MenuItemDetailViewController: UIViewController {
     
     
     @IBAction func addQuantity(_ sender: UIButton) {
-        if capacity == nil{
+        if orderItem.capacity == nil {
             showAlert(title: "Oops!", message: "請先選擇容量！", exit: false)
         } else {
-            quantity += 1
+            orderItem.quantity += 1
             updateUI()
         }
     }
     @IBAction func reduceQuantity(_ sender: UIButton) {
-        quantity -= 1
+        orderItem.quantity -= 1
         updateUI()
     }
     
     @IBAction func addToCart(_ sender: UIButton) {
-        if orderName == "" || orderName == nil {
+        if orderItem.orderName == "" {
             self.showAlert(title: "Oops!", message: "記得填上您的名字唷！", exit: false)
-        } else if capacity == nil {
+        } else if orderItem.capacity == nil {
             showAlert(title: "Oops!", message: "記得選擇容量喔", exit: false)
-        } else if sugarLevel == nil {
+        } else if orderItem.sugarLevel == nil {
             showAlert(title: "Oops!", message: "甜度？", exit: false)
-        } else if tempLevel == nil {
+        } else if orderItem.tempLevel == nil {
             showAlert(title: "Oops!", message: "記得選擇溫度喔", exit: false)
-        } else if quantity == 0 {
+        } else if orderItem.quantity == 0 {
             showAlert(title: "Oops!", message: "幾杯？", exit: false)
         } else {
             // 按鈕動畫
@@ -163,15 +146,13 @@ class MenuItemDetailViewController: UIViewController {
                 self.addCartButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             }, completion: nil)
             
-            guard let orderName = orderName,
-                  let capacity = capacity,
-                  let tempLevel = tempLevel,
-                  let sugarLevel = sugarLevel else { return }
-            
-            orderItem = Order(orderName: orderName, drinkName: drinkName, capacity: capacity.rawValue, tempLevel: tempLevel.rawValue, sugarLevel: sugarLevel.rawValue, toppings: toppings.map({$0.rawValue}).joined(separator: " "), quantity: quantity, price: price)
-            
+            guard let capacity = orderItem.capacity,
+                  let tempLevel = orderItem.tempLevel,
+                  let sugarLevel = orderItem.sugarLevel else { return }
+            let order = Order(orderName: orderItem.orderName, drinkName: orderItem.drinkName, capacity: capacity.rawValue, tempLevel: tempLevel.rawValue, sugarLevel: sugarLevel.rawValue, toppings: orderItem.toppings.map({$0.rawValue}).joined(separator: " "), quantity: orderItem.quantity, price: orderItem.price)
+
             if sender.title(for: .normal) == " 加入購物車"{
-                MenuController.shared.postOrder(orderData: orderItem!) { result in
+                MenuController.shared.postOrder(orderData: order) { result in
                     switch result {
                     case .success(_):
                         DispatchQueue.main.async {
@@ -185,7 +166,7 @@ class MenuItemDetailViewController: UIViewController {
                     }
                 }
             } else {
-                let orderRecord = OrderResponse.Record(id: orderRecord?.id, fields: orderItem!, createdTime: nil)
+                let orderRecord = OrderResponse.Record(id: orderRecord?.id, fields: order, createdTime: nil)
                 let orderResponse = OrderResponse.init(records: [orderRecord])
                 MenuController.shared.updateOrder(orderData: orderResponse) { result in
                     switch result{
@@ -216,11 +197,11 @@ class MenuItemDetailViewController: UIViewController {
     // MARK: - Navigation
     @IBSegueAction func passMenuItem(_ coder: NSCoder) -> MenuItemChoiceTableViewController? {
         if let orderRecord = orderRecord{
-            guard let controller =  MenuItemChoiceTableViewController(coder: coder, menuItem: menuRecord, orderRecord: orderRecord) else { return MenuItemChoiceTableViewController(coder: coder)}
+            guard let controller =  MenuItemChoiceTableViewController(coder: coder, menuRecord: menuRecord, orderRecord: orderRecord) else { return MenuItemChoiceTableViewController(coder: coder)}
             controller.orderChoiceDelegate = self
             return controller
         } else {
-            guard let controller = MenuItemChoiceTableViewController(coder: coder, menuItem: menuRecord) else { return MenuItemChoiceTableViewController(coder: coder)}
+            guard let controller = MenuItemChoiceTableViewController(coder: coder, menuRecord: menuRecord) else { return MenuItemChoiceTableViewController(coder: coder)}
             controller.orderChoiceDelegate = self
             return controller
         }
@@ -229,28 +210,8 @@ class MenuItemDetailViewController: UIViewController {
 }
 
 extension MenuItemDetailViewController: OrderChoiceDelegate {
-    func orderName(orderName: String) {
-        self.orderName = orderName
-    }
-    
-    func capacityChoice(capacity: Capacity?) {
-        self.capacity = capacity
+    func passOrderItem(orderItem: OrderItem) {
+        self.orderItem = orderItem
         updateUI()
     }
-    
-    func sugarLevelChoice(sugarLevel: SugerLevel?) {
-        self.sugarLevel = sugarLevel
-        updateUI()
-    }
-    
-    func tempLevelChoice(tempLevel: TempLevel?) {
-        self.tempLevel = tempLevel
-        updateUI()
-    }
-    
-    func toppingsChoice(toppings: [Toppings]) {
-        self.toppings = toppings
-        updateUI()
-    }
-    
 }

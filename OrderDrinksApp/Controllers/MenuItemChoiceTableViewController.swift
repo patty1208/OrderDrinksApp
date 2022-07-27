@@ -8,47 +8,37 @@
 import UIKit
 
 protocol OrderChoiceDelegate {
-    // 傳遞資料:tableview選擇後傳遞
-    func orderName(orderName: String)
-    func capacityChoice(capacity: Capacity?)
-    func sugarLevelChoice(sugarLevel: SugerLevel?)
-    func tempLevelChoice(tempLevel: TempLevel?)
-    func toppingsChoice(toppings: [Toppings])
+    func passOrderItem(orderItem: OrderItem) // 傳遞資料:tableview選擇後傳遞
 }
 
 class MenuItemChoiceTableViewController: UITableViewController {
-    
-    var capacityChoice: [Capacity] = []
-    var tempChoice: [TempLevel] = []
-    var choices: [String:[Any]] = [String:[Any]]()
-    let categories = OrderCategory.allCases
-    let menuItem: MenuResponse.Record
-    var orderName: String = ""
-    var capacity: Capacity?
-    var tempLevel: TempLevel?
-    var sugarLevel: SugerLevel?
-    var toppings: [Toppings] = []
-    var orderRecord: OrderResponse.Record?
-    
     var orderChoiceDelegate: OrderChoiceDelegate?
     
-    init?(coder: NSCoder, menuItem: MenuResponse.Record){
-        self.menuItem = menuItem
-        self.capacity = menuItem.fields.mediumPrice == nil ? .large : menuItem.fields.largePrice == nil ? .medium : nil
+    let menuRecord: MenuResponse.Record
+    var orderRecord: OrderResponse.Record?
+    var orderItem = OrderItem(orderName: "", drinkName: "", toppings: [], quantity: 1, price: 0)
+    
+    let categories = OrderCategory.allCases
+    var choices: [String:[Any]] = [String:[Any]]()
+    var capacityChoice: [Capacity] = []
+    var tempChoice: [TempLevel] = []
+    
+    init?(coder: NSCoder, menuRecord: MenuResponse.Record){
+        self.menuRecord = menuRecord
+        self.orderItem.drinkName = menuRecord.fields.drinkName
+        self.orderItem.capacity = menuRecord.fields.mediumPrice == nil ? .large : menuRecord.fields.largePrice == nil ? .medium : nil
+        self.orderItem.tempLevel = menuRecord.fields.onlyHot == nil ? nil : .hot
         super.init(coder: coder)
     }
     
-    init?(coder: NSCoder, menuItem: MenuResponse.Record, orderRecord: OrderResponse.Record){
-        self.menuItem = menuItem
+    init?(coder: NSCoder, menuRecord: MenuResponse.Record, orderRecord: OrderResponse.Record){
+        self.menuRecord = menuRecord
         self.orderRecord = orderRecord
-        self.orderName = orderRecord.fields.orderName
-        self.capacity = Capacity(rawValue: orderRecord.fields.capacity)
-        self.sugarLevel = SugerLevel(rawValue: orderRecord.fields.sugarLevel)
-        self.tempLevel = TempLevel(rawValue: orderRecord.fields.tempLevel)
+        self.orderItem = OrderItem(orderName: orderRecord.fields.orderName, drinkName: orderRecord.fields.drinkName, capacity: Capacity(rawValue: orderRecord.fields.capacity), tempLevel: TempLevel(rawValue: orderRecord.fields.tempLevel), sugarLevel: SugerLevel(rawValue: orderRecord.fields.sugarLevel), toppings: [Toppings](), quantity: orderRecord.fields.quantity, price: orderRecord.fields.price)
         if let toppings = orderRecord.fields.toppings?.components(separatedBy: " "){
-            self.toppings = toppings.map({ Toppings(rawValue: $0)!})
+            self.orderItem.toppings = toppings.map({ Toppings(rawValue: $0)!})
         } else {
-            self.toppings = [Toppings]()
+            self.orderItem.toppings = [Toppings]()
         }
         super.init(coder: coder)
     }
@@ -57,10 +47,7 @@ class MenuItemChoiceTableViewController: UITableViewController {
         fatalError("init(coder:) has not been implemented")
     }
     
-    @objc func dismissKeyBoard() {
-        self.view.endEditing(true)
-    }
-    
+    // MARK: - View controller life cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -71,17 +58,25 @@ class MenuItemChoiceTableViewController: UITableViewController {
         
         tableView.allowsMultipleSelection = true
         
-        capacityChoice = menuItem.fields.largePrice == nil ? [.medium] : menuItem.fields.mediumPrice == nil ? [.large] : [.large, .medium]
-        tempChoice = menuItem.fields.onlyHot == nil ? menuItem.fields.onlyCold == nil ? TempLevel.allCases : [.normal, .less, .light, .no] : [.hot]
+        capacityChoice = menuRecord.fields.largePrice == nil ? [.medium] : menuRecord.fields.mediumPrice == nil ? [.large] : [.large, .medium]
+        tempChoice = menuRecord.fields.onlyHot == nil ? (menuRecord.fields.onlyCold == nil ? TempLevel.allCases : [.normal, .less, .light, .no]) :  [.hot]
         choices = ["訂購人":[""],
                    "容量":self.capacityChoice,
                    "甜度":SugerLevel.allCases,
                    "溫度":self.tempChoice,
                    "配料":Toppings.allCases]
+        orderChoiceDelegate?.passOrderItem(orderItem: orderItem)
     }
     
+    // MARK: - 其他
     @IBAction func dismissKeyboard(_ sender: UITextField) {
+    
     }
+    
+    @objc func dismissKeyBoard() {
+        self.view.endEditing(true)
+    }
+    
     // MARK: - Table view data source
     override func numberOfSections(in tableView: UITableView) -> Int {
         return choices.count
@@ -96,7 +91,7 @@ class MenuItemChoiceTableViewController: UITableViewController {
         switch category {
         case .orderName:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(OrderNameTableViewCell.self)", for: indexPath) as? OrderNameTableViewCell else { return UITableViewCell() }
-            cell.orderNameTextField.text = orderName
+            cell.orderNameTextField.text = orderItem.orderName
             cell.delegate = self
             cell.orderNameTextField.becomeFirstResponder()
             return cell
@@ -104,66 +99,65 @@ class MenuItemChoiceTableViewController: UITableViewController {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(MenuChoiceTableViewCell.self)", for: indexPath) as? MenuChoiceTableViewCell else { return UITableViewCell() }
             if let choiceDetail = choices[category.rawValue] as? [Capacity]{
                 cell.menuChoiceItemLabel.text = choiceDetail[indexPath.row].rawValue
-                cell.checkImageView.image = capacity?.rawValue == choiceDetail[indexPath.row].rawValue ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
+                cell.checkImageView.image = orderItem.capacity?.rawValue == choiceDetail[indexPath.row].rawValue ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
+
             }
             return cell
         case .sugerLevel:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(MenuChoiceTableViewCell.self)", for: indexPath) as? MenuChoiceTableViewCell else { return UITableViewCell() }
             if let choiceDetail = choices[category.rawValue] as? [SugerLevel]{
                 cell.menuChoiceItemLabel.text = choiceDetail[indexPath.row].rawValue
-                cell.checkImageView.image = sugarLevel?.rawValue == choiceDetail[indexPath.row].rawValue ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
+                cell.checkImageView.image = orderItem.sugarLevel?.rawValue == choiceDetail[indexPath.row].rawValue ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
             }
             return cell
         case .tempLevel:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(MenuChoiceTableViewCell.self)", for: indexPath) as? MenuChoiceTableViewCell else { return UITableViewCell() }
             if let choiceDetail = choices[category.rawValue] as? [TempLevel]{
                 cell.menuChoiceItemLabel.text = choiceDetail[indexPath.row].rawValue
-                cell.checkImageView.image = tempLevel?.rawValue == choiceDetail[indexPath.row].rawValue ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
+                cell.checkImageView.image = orderItem.tempLevel?.rawValue == choiceDetail[indexPath.row].rawValue ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
             }
             return cell
         case .toppings:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "\(MenuChoiceTableViewCell.self)", for: indexPath) as? MenuChoiceTableViewCell else { return UITableViewCell() }
             if let choiceDetail = choices[category.rawValue] as? [Toppings]{
                 cell.menuChoiceItemLabel.text = " \(choiceDetail[indexPath.row].rawValue)  +$\(choiceDetail[indexPath.row].price)"
-                cell.checkImageView.image = toppings.contains(choiceDetail[indexPath.row]) == true ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
+                cell.checkImageView.image = orderItem.toppings.contains(choiceDetail[indexPath.row]) == true ? UIImage(systemName: "checkmark.rectangle.fill") : UIImage(systemName: "rectangle")
             }
             return cell
         }
     }
     
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        categories[section].rawValue
+    }
+    
+    // MARK: - Table view delegate
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let category = categories[indexPath.section]
         switch category {
         case .orderName: break
         case .capacity:
-            capacity = capacityChoice[indexPath.row]
-            orderChoiceDelegate?.capacityChoice(capacity: capacity)
+            orderItem.capacity = capacityChoice[indexPath.row]
         case .sugerLevel:
-            sugarLevel = SugerLevel.allCases[indexPath.row]
-            orderChoiceDelegate?.sugarLevelChoice(sugarLevel: sugarLevel)
+            orderItem.sugarLevel = SugerLevel.allCases[indexPath.row]
         case .tempLevel:
-            tempLevel = tempChoice[indexPath.row]
-            orderChoiceDelegate?.tempLevelChoice(tempLevel: tempLevel)
+            orderItem.tempLevel = tempChoice[indexPath.row]
         case .toppings:
-            if toppings.contains(Toppings.allCases[indexPath.row]) == false{
-                toppings.append(Toppings.allCases[indexPath.row])
+            if orderItem.toppings.contains(Toppings.allCases[indexPath.row]) == false {
+                orderItem.toppings.append(Toppings.allCases[indexPath.row])
             } else {
-                toppings.remove(at: toppings.firstIndex(of: Toppings.allCases[indexPath.row])!)
+                orderItem.toppings.remove(at: orderItem.toppings.firstIndex(of: Toppings.allCases[indexPath.row])!)
             }
-            orderChoiceDelegate?.toppingsChoice(toppings: toppings)
         }
+        orderChoiceDelegate?.passOrderItem(orderItem: orderItem)
         tableView.reloadData()
-    }
-    
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        categories[section].rawValue
     }
 }
 
 extension MenuItemChoiceTableViewController: OrderNameTableViewCellTapDelegate {
     func isEdit(cell: OrderNameTableViewCell) {
         guard let orderName = cell.orderNameTextField.text else { return }
-        self.orderName = orderName
-        orderChoiceDelegate?.orderName(orderName: orderName)
+        self.orderItem.orderName = orderName
+        orderChoiceDelegate?.passOrderItem(orderItem: self.orderItem)
     }
 }
