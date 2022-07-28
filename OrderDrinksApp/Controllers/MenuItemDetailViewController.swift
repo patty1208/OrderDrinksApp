@@ -71,7 +71,6 @@ class MenuItemDetailViewController: UIViewController {
         // 訂單客製化選項說明:大杯小杯溫度甜度配料
         // 隨訂單選項點選變動
         var toppingsText = ""
-    
         if orderItem.toppings == [] {
             toppingsText = ""
         } else {
@@ -80,13 +79,18 @@ class MenuItemDetailViewController: UIViewController {
             }
             toppingsText = "\n" + toppingsText
         }
+        
         footerView.orderDetailLabel.text = "\(orderItem.capacity?.rawValue ?? "")  \(orderItem.sugarLevel?.rawValue ?? "")  \(orderItem.tempLevel?.rawValue ?? "")\(toppingsText)"
         
         // 價錢
-        if let capacity = orderItem.capacity {
-            orderItem.price = ((capacity == .large ? menuRecord.fields.largePrice! : menuRecord.fields.mediumPrice!) + orderItem.toppings.reduce(0, { x, y in
-                x + y.price })) * orderItem.quantity
+        let capacityPrice: Int
+        if orderItem.capacity == .large {
+            capacityPrice = menuRecord.fields.largePrice ?? 0
+        } else {
+            capacityPrice = menuRecord.fields.mediumPrice ?? 0
         }
+        orderItem.price = (capacityPrice + orderItem.toppings.reduce(0, { x, y in
+            x + y.price })) * orderItem.quantity
         footerView.priceLabel.text = "$ " + orderItem.price.description
         
     }
@@ -139,6 +143,7 @@ class MenuItemDetailViewController: UIViewController {
                 self.footerView.addCartButton.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             }, completion: nil)
             
+            // 新增訂單至 Airtable
             guard let capacity = orderItem.capacity,
                   let tempLevel = orderItem.tempLevel,
                   let sugarLevel = orderItem.sugarLevel else { return }
@@ -159,6 +164,7 @@ class MenuItemDetailViewController: UIViewController {
                     }
                 }
             } else {
+                // 修改訂單至 Airtable
                 let orderRecord = OrderResponse.Record(id: orderRecord?.id, fields: order, createdTime: nil)
                 let orderResponse = OrderResponse.init(records: [orderRecord])
                 MenuController.shared.updateOrder(orderData: orderResponse) { result in

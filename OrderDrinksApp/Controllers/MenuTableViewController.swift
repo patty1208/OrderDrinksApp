@@ -89,7 +89,7 @@ class MenuTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         return 30
     }
-    
+
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.bounds.size.width, height: 30))
         let titleLabel = UILabel.init(frame: CGRect.init(x: 10, y: 0, width: tableView.bounds.size.width - 20, height: 30))

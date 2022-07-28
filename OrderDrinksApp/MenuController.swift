@@ -11,13 +11,12 @@ import UIKit
 public let apiKey = "keyezMmClHKWxeYFA"
 
 class MenuController {
-    
     static let shared = MenuController()
-    var menuResponse = MenuResponse.init(records: [MenuResponse.Record]())
-    var categoryByMenu = ["冬季限定","原葉鮮萃茶", "鮮萃茶拿鐵", "鮮調果茶", "果然系列", "夏季限定", "奶茶 / 特調"]
-    var orderResponse = OrderResponse.init(records: [OrderResponse.Record]())
     let baseURL = URL(string: "https://api.airtable.com/v0/appjeZuwHlxzgniTq/")!
-    
+    var menuResponse = MenuResponse.init(records: [MenuResponse.Record]())
+    var orderResponse = OrderResponse.init(records: [OrderResponse.Record]())
+    var categoryByMenu = ["冬季限定","原葉鮮萃茶", "鮮萃茶拿鐵", "鮮調果茶", "果然系列", "夏季限定", "奶茶 / 特調"]
+
     // MARK: - GET MENU
     func fetchMenuRecords(completion: @escaping (Result<[MenuResponse.Record], Error>) -> Void) {
         let baseMenuURL = baseURL.appendingPathComponent("Menu")
@@ -35,12 +34,13 @@ class MenuController {
                     print("Fetch Menu Success")
                     
                     // 檢查資料
-//                    print("check get menu:")
-//                    data.prettyPrintedJSONString()
+    //                    print("check get menu:")
+    //                    data.prettyPrintedJSONString()
                     
                     let jsonDecoder = JSONDecoder()
                     let menuResponse = try jsonDecoder.decode(MenuResponse.self, from: data)
                     completion(.success(menuResponse.records))
+                    
                 } catch {
                     print("Fetch Menu Failed")
                     completion(.failure(error))
@@ -68,8 +68,8 @@ class MenuController {
                     print("Fetch Order Success")
                     
                     // 檢查資料
-//                    print("check get order:")
-//                    data.prettyPrintedJSONString()
+    //                    print("check get order:")
+    //                    data.prettyPrintedJSONString()
                     
                     let jsonDecoder = JSONDecoder()
                     let orderResponse = try jsonDecoder.decode(OrderResponse.self, from: data)
@@ -180,7 +180,7 @@ class MenuController {
                 print("check update order:")
                 data.prettyPrintedJSONString()
                 guard let content = String(data:data,encoding: .utf8) else { return }
-//                print("update Order Success: \n\(content)")
+    //                print("update Order Success: \n\(content)")
                 completion(.success(content))
             } else if let error = error {
                 print("update Order Failure: \(error)")

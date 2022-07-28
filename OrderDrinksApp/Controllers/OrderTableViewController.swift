@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol loadOrderDelegate {
+protocol LoadOrderDelegate {
     func loadOrder(orderRecords: [OrderResponse.Record])
     func loadAnimating(state: Bool)
 }
@@ -23,7 +23,7 @@ class OrderTableViewController: UITableViewController {
             })
         }
     }
-    var delegate: loadOrderDelegate?
+    var delegate: LoadOrderDelegate?
     
     // MARK: - UI
     @objc func updateOrderRecordsUI(notification: Notification) {

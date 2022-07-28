@@ -34,7 +34,7 @@ class OrderViewController: UIViewController {
     }
 }
 
-extension OrderViewController: loadOrderDelegate {
+extension OrderViewController: LoadOrderDelegate {
     func loadAnimating(state: Bool) {
         if state == true{
             loadingActivityIndicatorView.startAnimating()

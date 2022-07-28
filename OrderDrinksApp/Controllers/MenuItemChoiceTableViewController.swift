@@ -13,11 +13,11 @@ protocol OrderChoiceDelegate {
 
 class MenuItemChoiceTableViewController: UITableViewController {
     var orderChoiceDelegate: OrderChoiceDelegate?
-    
+
     let menuRecord: MenuResponse.Record
     var orderRecord: OrderResponse.Record?
     var orderItem = OrderItem(orderName: "", drinkName: "", toppings: [], quantity: 1, price: 0)
-    
+
     let categories = OrderCategory.allCases
     var choices: [String:[Any]] = [String:[Any]]()
     var capacityChoice: [Capacity] = []
@@ -25,6 +25,13 @@ class MenuItemChoiceTableViewController: UITableViewController {
     
     init?(coder: NSCoder, menuRecord: MenuResponse.Record){
         self.menuRecord = menuRecord
+        self.capacityChoice = menuRecord.fields.largePrice == nil ? [.medium] : menuRecord.fields.mediumPrice == nil ? [.large] : [.large, .medium]
+        self.tempChoice = menuRecord.fields.onlyHot == nil ? (menuRecord.fields.onlyCold == nil ? TempLevel.allCases : [.normal, .less, .light, .no]) :  [.hot]
+        self.choices = ["訂購人":[""],
+                   "容量":self.capacityChoice,
+                   "甜度":SugerLevel.allCases,
+                   "溫度":self.tempChoice,
+                   "配料":Toppings.allCases]
         self.orderItem.drinkName = menuRecord.fields.drinkName
         self.orderItem.capacity = menuRecord.fields.mediumPrice == nil ? .large : menuRecord.fields.largePrice == nil ? .medium : nil
         self.orderItem.tempLevel = menuRecord.fields.onlyHot == nil ? nil : .hot
@@ -33,6 +40,13 @@ class MenuItemChoiceTableViewController: UITableViewController {
 
     init?(coder: NSCoder, menuRecord: MenuResponse.Record, orderRecord: OrderResponse.Record){
         self.menuRecord = menuRecord
+        self.capacityChoice = menuRecord.fields.largePrice == nil ? [.medium] : menuRecord.fields.mediumPrice == nil ? [.large] : [.large, .medium]
+        self.tempChoice = menuRecord.fields.onlyHot == nil ? (menuRecord.fields.onlyCold == nil ? TempLevel.allCases : [.normal, .less, .light, .no]) :  [.hot]
+        self.choices = ["訂購人":[""],
+                   "容量":self.capacityChoice,
+                   "甜度":SugerLevel.allCases,
+                   "溫度":self.tempChoice,
+                   "配料":Toppings.allCases]
         self.orderRecord = orderRecord
         self.orderItem = OrderItem(orderName: orderRecord.fields.orderName, drinkName: orderRecord.fields.drinkName, capacity: Capacity(rawValue: orderRecord.fields.capacity), tempLevel: TempLevel(rawValue: orderRecord.fields.tempLevel), sugarLevel: SugerLevel(rawValue: orderRecord.fields.sugarLevel), toppings: [Toppings](), quantity: orderRecord.fields.quantity, price: orderRecord.fields.price)
         if let toppings = orderRecord.fields.toppings?.components(separatedBy: " "){
@@ -58,19 +72,11 @@ class MenuItemChoiceTableViewController: UITableViewController {
         
         tableView.allowsMultipleSelection = true
         
-        capacityChoice = menuRecord.fields.largePrice == nil ? [.medium] : menuRecord.fields.mediumPrice == nil ? [.large] : [.large, .medium]
-        tempChoice = menuRecord.fields.onlyHot == nil ? (menuRecord.fields.onlyCold == nil ? TempLevel.allCases : [.normal, .less, .light, .no]) :  [.hot]
-        choices = ["訂購人":[""],
-                   "容量":self.capacityChoice,
-                   "甜度":SugerLevel.allCases,
-                   "溫度":self.tempChoice,
-                   "配料":Toppings.allCases]
         orderChoiceDelegate?.passOrderItem(orderItem: orderItem)
     }
     
     // MARK: - 其他
     @IBAction func dismissKeyboard(_ sender: UITextField) {
-    
     }
     
     @objc func dismissKeyBoard() {
