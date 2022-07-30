@@ -86,8 +86,10 @@ class MenuItemDetailViewController: UIViewController {
         let capacityPrice: Int
         if orderItem.capacity == .large {
             capacityPrice = menuRecord.fields.largePrice ?? 0
-        } else {
+        } else if orderItem.capacity == .medium {
             capacityPrice = menuRecord.fields.mediumPrice ?? 0
+        } else {
+            capacityPrice = 0
         }
         orderItem.price = (capacityPrice + orderItem.toppings.reduce(0, { x, y in
             x + y.price })) * orderItem.quantity
